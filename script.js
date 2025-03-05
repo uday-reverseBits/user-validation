@@ -14,7 +14,7 @@ function storeUserInfo() {
             localStorage.setItem("token", "tokenDemo");
             // sessionStorage.setItem("token", "tokenDemo");
 
-            window.location.href = "/user-validation/home.html";
+            window.location.href = "user-validation/home.html";
 
         } else {
             alert("wrong credentials. please try again.")
