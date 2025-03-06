@@ -26,7 +26,7 @@ fetch("https://jsonplaceholder.typicode.com/todos")
                                             <td> ${elemet.title}</td>
                                             <td> ${elemet.completed}</td>
                                             <td>
-                                                <button type="button" class="btn btn-success btn-sm px-2"  id="editBtn" onclick="editRecord(),updateRecord()">
+                                                <button type="button" class="btn btn-success btn-sm px-2"  id="editBtn" onclick="editRecord()">
                                                     <i class="fa-solid fa-pen-to-square"></i>
                                                 </button>
                                                 <button type="button" class="btn btn-primary btn-sm px-2">
@@ -126,6 +126,10 @@ function insertNewRecord(data) {
 
 
 function editRecord(id) {
+    // alert("I am working")
+    // window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+
     const row = document.querySelector(`tr[data-id="${id}"]`);
     const cells = row.getElementsByTagName("td");
 
