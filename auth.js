@@ -6,6 +6,10 @@ if (!authToken) {
     window.location.href = "index.html";
 }
 
+// Initialize editModal
+const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+let currentEditId = null;
+let isAddMode = false;
 
 fetch("https://jsonplaceholder.typicode.com/todos")
     .then(function (response) {
@@ -15,50 +19,56 @@ fetch("https://jsonplaceholder.typicode.com/todos")
         let placeholder = document.getElementById("data-output");
         let out = "";
 
-        for (let elemet of elements) {
+        for (let element of elements) {
             out += `
-                       
-
-                                           <tr>
-                                                
-                                             <td>${elemet.userId} </td>
-                                           <td> ${elemet.id}</td>
-                                            <td> ${elemet.title}</td>
-                                            <td> ${elemet.completed}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-success btn-sm px-2"  id="editBtn" onclick="editRecord()">
-                                                    <i class="fa-solid fa-pen-to-square"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-primary btn-sm px-2">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-sm px-2" onclick="deleteRecord()" >
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </td>
-                                            </tr> 
-                        `;
+                <tr data-id="${element.id}">
+                    <td>${element.userId}</td>
+                    <td>${element.id}</td>
+                    <td>${element.title}</td>
+                    <td>${element.completed}</td>
+                    <td>
+                        <button type="button" class="btn btn-success btn-sm px-2" onclick="editRecord(${element.id})">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm px-2" onclick="deleteRecord(${element.id})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
         }
         placeholder.innerHTML = out;
-    })
+    });
 
+function showAddModal() {
+    isAddMode = true;
+    document.getElementById("editModalLabel").textContent = "Add New Record";
+    document.getElementById("editSubmitBtn").textContent = "Add Record";
+    document.getElementById("editForm").reset();
+    editModal.show();
+}
 
-
-
-
-
-
-
-
-//for thr modal
-
-document.querySelector("#form").addEventListener("submit", function (event) {
-    event.preventDefault();
-    submit();
+// Handle edit form submission
+document.getElementById("editSubmitBtn").addEventListener("click", function() {
+    if (isAddMode) {
+        addNewRecord();
+    } else if (currentEditId) {
+        updateRecord(currentEditId);
+    }
 });
 
-function submit() {
-    var formData = readFormData();
+// Handle edit form reset
+document.getElementById("editResetBtn").addEventListener("click", function() {
+    document.getElementById("editForm").reset();
+});
+
+function addNewRecord() {
+    const formData = {
+        userId: document.getElementById("editUserId").value,
+        id: document.getElementById("editId").value,
+        title: document.getElementById("editTitle").value,
+        completed: document.getElementById("editCompleted").value === "true"
+    };
+
     fetch("https://jsonplaceholder.typicode.com/todos", {
         method: "POST",
         headers: {
@@ -69,84 +79,61 @@ function submit() {
     })
         .then(response => response.json())
         .then(data => {
-            console.log("Success:", data);
-            insertNewRecord(data);
-            document.getElementById("form").reset();
+            console.log("Add Success:", data);
+            var tableBody = document.getElementById("data-output");
+            var newRow = `
+                <tr data-id="${data.id}">
+                    <td>${data.userId}</td>
+                    <td>${data.id}</td>
+                    <td>${data.title}</td>
+                    <td>${data.completed}</td>
+                    <td>
+                        <button type="button" class="btn btn-success btn-sm px-2" onclick="editRecord(${data.id})">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-sm px-2" onclick="deleteRecord(${data.id})">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            tableBody.insertAdjacentHTML('beforeend', newRow);
+            
+            editModal.hide();
+            document.getElementById("editForm").reset();
+            isAddMode = false;
+            document.getElementById("editModalLabel").textContent = "Edit Record";
+            document.getElementById("editSubmitBtn").textContent = "Save changes";
         })
         .catch(error => {
             console.error("Error:", error);
+            alert("Failed to add the record. Please try again.");
         });
 }
 
-function readFormData() {
-    return {
-        userId: document.getElementById("userId").value,
-        id: document.getElementById("id").value,
-        title: document.getElementById("title").value,
-        completed: document.getElementById("completed").value === "true"
-    };
-}
-
-function insertNewRecord(data) {
-    var tableBody = document.getElementById("data-output");
-
-
-    var newRow = `
-        <tr data-id="${data.id}">
-           
-            <td>${data.userId}</td>
-            <td>${data.id}</td>
-            <td>${data.title}</td>
-            <td>${data.completed}</td>
-            <td>
-                <button type="button" class="btn btn-success btn-sm px-2 edit-btn" onclick="editRecord(${data.id})">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button type="button" class="btn btn-primary btn-sm px-2 view-btn" onclick="viewRecord(${data.id})">
-                    <i class="fa-solid fa-eye"></i>
-                </button>
-                <button type="button" class="btn btn-danger btn-sm px-2 delete-btn" onclick="deleteRecord(${data.id})">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `;
-
-
-    tableBody.innerHTML += newRow;
-
-
-    updateCheckboxEvents();
-}
-
-
-
-
-
-
-
 function editRecord(id) {
-    // alert("I am working")
-    // window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
-
+    isAddMode = false;
+    currentEditId = id;
+    document.getElementById("editModalLabel").textContent = "Edit Record";
+    document.getElementById("editSubmitBtn").textContent = "Save changes";
+    
     const row = document.querySelector(`tr[data-id="${id}"]`);
     const cells = row.getElementsByTagName("td");
 
-    document.getElementById("userId").value = cells[0].textContent;
-    document.getElementById("id").value = cells[1].textContent;
-    document.getElementById("title").value = cells[2].textContent;
-    document.getElementById("completed").value = cells[3].textContent;
+    document.getElementById("editUserId").value = cells[0].textContent;
+    document.getElementById("editId").value = cells[1].textContent;
+    document.getElementById("editTitle").value = cells[2].textContent;
+    document.getElementById("editCompleted").value = cells[3].textContent.toLowerCase() === 'true' ? 'true' : 'false';
 
-    const submitBtn = document.getElementById("s-btn");
-    submitBtn.value = "Update";
-    submitBtn.onclick = function () {
-        updateRecord(id);
-    };
+    editModal.show();
 }
 
 function updateRecord(id) {
-    const formData = readFormData();
+    const formData = {
+        userId: document.getElementById("editUserId").value,
+        id: document.getElementById("editId").value,
+        title: document.getElementById("editTitle").value,
+        completed: document.getElementById("editCompleted").value === "true"
+    };
 
     fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
         method: "PUT",
@@ -168,18 +155,15 @@ function updateRecord(id) {
             cells[2].textContent = data.title;
             cells[3].textContent = data.completed;
 
-            document.getElementById("form").reset();
-            const submitBtn = document.getElementById("s-btn");
-            submitBtn.value = "Submit";
-            submitBtn.onclick = submit;
+            editModal.hide();
+            document.getElementById("editForm").reset();
+            currentEditId = null;
         })
         .catch(error => {
             console.error("Error:", error);
+            alert("Failed to update the record. Please try again.");
         });
 }
-
-
-
 
 function deleteRecord(id) {
     if (confirm("Are you sure you want to delete this record?")) {
@@ -192,65 +176,26 @@ function deleteRecord(id) {
             .then(response => {
                 if (response.ok) {
                     const row = document.querySelector(`tr[data-id="${id}"]`);
-                    row.remove();
-                    console.log("Delete Success");
+                    if (row) {
+                        row.remove();
+                        console.log("Delete Success");
+                    }
                 } else {
                     throw new Error("Failed to delete");
                 }
             })
             .catch(error => {
                 console.error("Error:", error);
+                alert("Failed to delete the record. Please try again.");
             });
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Remove the old form submission code since we're using the modal now
+const oldForm = document.querySelector("#form");
+if (oldForm) {
+    oldForm.remove();
+}
 
 $(document).ready(function () {
     // Select/deselect all checkboxes
