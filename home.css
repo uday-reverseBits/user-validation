@@ -5,3 +5,29 @@
 body {
     background-color: #2c2727;
 } */
+
+
+
+
+
+
+
+
+body {
+    background: #ededed;
+}
+
+.table_outer {
+    padding: 20px 0;
+}
+
+table td,
+table th {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.card {
+    border-radius: .5rem;
+}
