@@ -6,7 +6,6 @@ if (!authToken) {
     window.location.href = "index.html";
 }
 
-// Initialize editModal
 const editModal = new bootstrap.Modal(document.getElementById('editModal'));
 let currentEditId = null;
 let isAddMode = false;
@@ -47,8 +46,7 @@ function showAddModal() {
     editModal.show();
 }
 
-// Handle edit form submission
-document.getElementById("editSubmitBtn").addEventListener("click", function() {
+document.getElementById("editSubmitBtn").addEventListener("click", function () {
     if (isAddMode) {
         addNewRecord();
     } else if (currentEditId) {
@@ -56,8 +54,7 @@ document.getElementById("editSubmitBtn").addEventListener("click", function() {
     }
 });
 
-// Handle edit form reset
-document.getElementById("editResetBtn").addEventListener("click", function() {
+document.getElementById("editResetBtn").addEventListener("click", function () {
     document.getElementById("editForm").reset();
 });
 
@@ -97,7 +94,7 @@ function addNewRecord() {
                     </td>
                 </tr>`;
             tableBody.insertAdjacentHTML('beforeend', newRow);
-            
+
             editModal.hide();
             document.getElementById("editForm").reset();
             isAddMode = false;
@@ -115,7 +112,7 @@ function editRecord(id) {
     currentEditId = id;
     document.getElementById("editModalLabel").textContent = "Edit Record";
     document.getElementById("editSubmitBtn").textContent = "Save changes";
-    
+
     const row = document.querySelector(`tr[data-id="${id}"]`);
     const cells = row.getElementsByTagName("td");
 
@@ -191,14 +188,12 @@ function deleteRecord(id) {
     }
 }
 
-// Remove the old form submission code since we're using the modal now
 const oldForm = document.querySelector("#form");
 if (oldForm) {
     oldForm.remove();
 }
 
 $(document).ready(function () {
-    // Select/deselect all checkboxes
     $('#select_all').click(function () {
         if ($(this).is(':checked')) {
             $('.checkbox').prop('checked', true);
@@ -207,7 +202,6 @@ $(document).ready(function () {
         }
     });
 
-    // If all checkboxes are selected, select the top checkbox
     $('.checkbox').click(function () {
         if ($('.checkbox:checked').length === $('.checkbox').length) {
             $('#select_all').prop('checked', true);
