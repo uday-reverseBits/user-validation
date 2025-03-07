@@ -58,6 +58,11 @@ document.getElementById("editResetBtn").addEventListener("click", function () {
     document.getElementById("editForm").reset();
 });
 
+
+
+
+
+
 function addNewRecord() {
     const formData = {
         userId: document.getElementById("editUserId").value,
